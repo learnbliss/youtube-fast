@@ -23,10 +23,6 @@ const setSpeedInSettingsMenu = () => {
 const savePlayBackRateInLocalStorage = (playbackRate) => {
     chrome.storage.local.set({playbackRate: String(playbackRate)}).then(() => {
     });
-
-    // chrome.storage.local.get(['playbackRate']).then((result) => {
-    //     console.log('Value currently is ' + result.playbackRate);
-    // });
 }
 
 const addMenuItems = () => {
@@ -87,4 +83,8 @@ chrome.runtime.onMessage.addListener((request) => {
             getSetPlaybackRate(result.playbackRate)
         });
     }
+});
+
+chrome.runtime.sendMessage('i-prepare', (response) => {
+  console.log('received user data', response);
 });

@@ -1,15 +1,16 @@
-chrome.runtime.onInstalled.addListener(() => {
-    console.log('onInstalled')
-    chrome.storage.local.get(['playbackRate']).then((result) => {
-        console.log('Value currently is ' + result.playbackRate);
-        if (result.playbackRate) {
-            getCurrentTab().then(tab => {
-                chrome.tabs.sendMessage(tab.id, {action: 'set-playback-rate'}).then((response) => {
-                    console.log(response)
+chrome.runtime.onMessage.addListener((message) => {
+    if (message === 'i-prepare') {
+        chrome.storage.local.get(['playbackRate']).then((result) => {
+            if (result.playbackRate) {
+                getCurrentTab().then(tab => {
+                    chrome.tabs.sendMessage(tab.id, {action: 'set-playback-rate'}).then((response) => {
+                        console.log(response)
+                    })
                 })
-            })
-        }
-    });
+            }
+        });
+
+    }
 });
 
 async function getCurrentTab() {
