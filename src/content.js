@@ -1,19 +1,32 @@
 const additionalSpeedValue = ['2.25', '2.5', '2.75', '3', '3.25', '3.5', '3.75', '4']
 const getPattern = (value) => `<div class="ytp-menuitem" tabindex="0" role="menuitemradio"><div class="ytp-menuitem-label">${value}</div></div>`
-const getPlaybackRate = () => document.getElementsByClassName('video-stream html5-main-video')[0].playbackRate;
 const MAX_SPEED_DEFAULT = 2;
+const SPEED_PLAYBACK = 'Скорость воспроизведения'
+
+const ytpSettingsButton = document.querySelector('.ytp-settings-button')
+
+const getSetPlaybackRate = (speed) => speed
+    ? String(document.getElementsByClassName('video-stream html5-main-video')[0].playbackRate = isNaN(speed) ? 1 : speed)
+    : document.getElementsByClassName('video-stream html5-main-video')[0].playbackRate;
 
 let isMenuItemsAdded = false;
 
-const ytpSettingsButton = document.querySelector('.ytp-settings-button')
-const ytpSettingsMenu = document.querySelector('.ytp-settings-menu');
-
 const setSpeedInSettingsMenu = () => {
+    const playbackRate = getSetPlaybackRate();
     document.querySelectorAll('.ytp-menuitem').forEach(item => {
-        if (item.querySelector('.ytp-menuitem-label').innerHTML === 'Скорость воспроизведения') {
-            item.querySelector('.ytp-menuitem-content').innerHTML = getPlaybackRate();
+        if (item.querySelector('.ytp-menuitem-label').innerHTML === SPEED_PLAYBACK) {
+            item.querySelector('.ytp-menuitem-content').innerHTML = playbackRate;
         }
     })
+}
+
+const savePlayBackRateInLocalStorage = (playbackRate) => {
+    chrome.storage.local.set({playbackRate: String(playbackRate)}).then(() => {
+    });
+
+    // chrome.storage.local.get(['playbackRate']).then((result) => {
+    //     console.log('Value currently is ' + result.playbackRate);
+    // });
 }
 
 const addMenuItems = () => {
@@ -24,7 +37,7 @@ const addMenuItems = () => {
 
     ytpPanel.forEach((item, i) => {
         if (item.querySelector('.ytp-panel-header')?.querySelector('.ytp-panel-title')?.innerHTML
-            === 'Скорость воспроизведения') {
+            === SPEED_PLAYBACK) {
             ytpPanelMenuSpeed = ytpPanel[i].querySelector('.ytp-panel-menu')
             isMenuItemsAdded = true
         }
@@ -34,15 +47,19 @@ const addMenuItems = () => {
         const newMenuItem = document.createRange().createContextualFragment(getPattern(item))
         ytpPanelMenuSpeed.appendChild(newMenuItem)
     })
+
     const updatedSpeedMenuItems = ytpPanelMenuSpeed.querySelectorAll('.ytp-menuitem');
 
     updatedSpeedMenuItems.forEach(item => {
         item.addEventListener('click', (e) => {
-            const speedValue = item.textContent;
+            const playbackRate = item.textContent;
             updatedSpeedMenuItems.forEach(node => node.removeAttribute('aria-checked'));
             e.target.parentNode.setAttribute('aria-checked', 'true');
-            document.getElementsByClassName('video-stream html5-main-video')[0].playbackRate = speedValue;
-            if (parseFloat(speedValue) <= MAX_SPEED_DEFAULT) {
+            getSetPlaybackRate(playbackRate);
+
+            savePlayBackRateInLocalStorage(playbackRate);
+
+            if (parseFloat(playbackRate) <= MAX_SPEED_DEFAULT) {
                 setSpeedInSettingsMenu()
             }
         })
@@ -56,11 +73,18 @@ const handleClick = () => {
 
     ytpMenuItems.forEach((item, i) => {
         const node = item.querySelector('.ytp-menuitem-label');
-        if (node.innerHTML === 'Скорость воспроизведения') {
+        if (node.innerHTML === SPEED_PLAYBACK) {
             ytpMenuItems[i].addEventListener('click', () => addMenuItems())
-            // ytpSettingsButton.removeEventListener('click', handleClick) // меню рендерится в dom заново, убирать слушатель не вариант
         }
     })
 }
 
 ytpSettingsButton.addEventListener('click', handleClick)
+
+chrome.runtime.onMessage.addListener((request) => {
+    if (request.action === 'set-playback-rate') {
+        chrome.storage.local.get(['playbackRate']).then((result) => {
+            getSetPlaybackRate(result.playbackRate)
+        });
+    }
+});

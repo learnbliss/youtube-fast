@@ -1,0 +1,10 @@
+{
+  "name": {
+    "message": "Скоростной youtube",
+    "description": "extension name"
+  },
+  "description": {
+    "message": "Изменение скорости воспроизведения youtube выше 2x",
+    "description": "extension description"
+  }
+}

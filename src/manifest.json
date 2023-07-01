@@ -3,7 +3,7 @@
   "description": "__MSG_description__",
   "version": "0.1.0",
   "manifest_version": 3,
-  "default_locale": "en",
+  "default_locale": "ru",
   "icons": {
     "32": "./icons/y_icon_32.png",
     "64": "./icons/y_icon_64.png",
@@ -12,7 +12,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://www.youtube.com/*"
+        "https://*.youtube.com/*",
+        "https://youtube.com/*"
       ],
       "run_at": "document_idle",
       "all_frames": false,
@@ -22,6 +23,15 @@
     }
   ],
   "host_permissions": [
-    "https://www.youtube.com/*"
+    "https://www.youtube.com/*",
+    "https://youtube.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs"
   ]
 }
