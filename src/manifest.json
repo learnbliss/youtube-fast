@@ -1,0 +1,27 @@
+{
+  "name": "__MSG_name__",
+  "description": "__MSG_description__",
+  "version": "0.1.0",
+  "manifest_version": 3,
+  "default_locale": "en",
+  "icons": {
+    "32": "./icons/y_icon_32.png",
+    "64": "./icons/y_icon_64.png",
+    "128": "./icons/y_icon_128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false,
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "host_permissions": [
+    "https://www.youtube.com/*"
+  ]
+}

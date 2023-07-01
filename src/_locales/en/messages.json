@@ -1,0 +1,10 @@
+{
+  "name": {
+    "message": "Youtube speed set",
+    "description": "extension name"
+  },
+  "description": {
+    "message": "Change the playback speed more then default values of YouTube videos.",
+    "description": "extension description"
+  }
+}
