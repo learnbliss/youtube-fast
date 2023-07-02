@@ -5,12 +5,14 @@ const SPEED_PLAYBACK = 'Скорость воспроизведения'
 
 const ytpSettingsButton = document.querySelector('.ytp-settings-button')
 
+let isMenuItemsAdded = false;
+
+//установить скорость воспроизведения видео, либо вернуть значение скорости
 const getSetPlaybackRate = (speed) => speed
     ? String(document.getElementsByClassName('video-stream html5-main-video')[0].playbackRate = isNaN(speed) ? 1 : speed)
     : document.getElementsByClassName('video-stream html5-main-video')[0].playbackRate;
 
-let isMenuItemsAdded = false;
-
+//установить значение скорости в основном меню настроек
 const setSpeedInSettingsMenu = () => {
     const playbackRate = getSetPlaybackRate();
     document.querySelectorAll('.ytp-menuitem').forEach(item => {
@@ -20,17 +22,20 @@ const setSpeedInSettingsMenu = () => {
     })
 }
 
+//сохранить значение скорости в localStorage
 const savePlayBackRateInLocalStorage = (playbackRate) => {
     chrome.storage.local.set({playbackRate: String(playbackRate)}).then(() => {
     });
 }
 
+//добавление пунктов меню с дополнительными значениями скорости
 const addMenuItems = () => {
     if (isMenuItemsAdded) return
 
     let ytpPanelMenuSpeed;
     const ytpPanel = document.querySelectorAll('.ytp-panel')
 
+    //находим нужный элемент, куда будем добавлять пункты меню
     ytpPanel.forEach((item, i) => {
         if (item.querySelector('.ytp-panel-header')?.querySelector('.ytp-panel-title')?.innerHTML
             === SPEED_PLAYBACK) {
@@ -39,6 +44,7 @@ const addMenuItems = () => {
         }
     })
 
+    //добавляем пункты меню
     additionalSpeedValue.forEach(item => {
         const newMenuItem = document.createRange().createContextualFragment(getPattern(item))
         ytpPanelMenuSpeed.appendChild(newMenuItem)
@@ -46,8 +52,10 @@ const addMenuItems = () => {
 
     const updatedSpeedMenuItems = ytpPanelMenuSpeed.querySelectorAll('.ytp-menuitem');
 
+    //на каждый пункт меню выбора скорости вешаем слушатель
     updatedSpeedMenuItems.forEach(item => {
         item.addEventListener('click', (e) => {
+            //устанавливаем указатель выбранной скорости (галочку)
             const playbackRate = item.textContent;
             updatedSpeedMenuItems.forEach(node => node.removeAttribute('aria-checked'));
             e.target.parentNode.setAttribute('aria-checked', 'true');
@@ -55,6 +63,7 @@ const addMenuItems = () => {
 
             savePlayBackRateInLocalStorage(playbackRate);
 
+            //если кликаем на одно из оригинальных значений скорости, то устанавливаем эту скорость в меню настроек
             if (parseFloat(playbackRate) <= MAX_SPEED_DEFAULT) {
                 setSpeedInSettingsMenu()
             }
@@ -62,6 +71,7 @@ const addMenuItems = () => {
     })
 }
 
+//вешаем слушатель на кнопку перехода из основного меню настроек в настройки скорости
 const handleClick = () => {
     const ytpMenuItems = document.querySelectorAll('.ytp-menuitem');
 
@@ -75,8 +85,10 @@ const handleClick = () => {
     })
 }
 
+//слушатель на кнопку входа в меню настроек
 ytpSettingsButton.addEventListener('click', handleClick)
 
+//слушаем сообщения от background, если оно придет, устанавливаем значение скорости из localStorage
 chrome.runtime.onMessage.addListener((request) => {
     if (request.action === 'set-playback-rate') {
         chrome.storage.local.get(['playbackRate']).then((result) => {
@@ -85,6 +97,7 @@ chrome.runtime.onMessage.addListener((request) => {
     }
 });
 
+//посылаем сообщение в background о готовности загрузки content
 chrome.runtime.sendMessage('i-prepare', (response) => {
   console.log('received user data', response);
 });
