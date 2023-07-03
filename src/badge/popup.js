@@ -55,14 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    chrome.runtime.onMessage.addListener(async () => {
-        try {
-            await changeSpeed(parseFloat(playbackRate));
-        } catch (e) {
-            console.error('runtime.onMessage', e)
-        }
-    })
-
     if (!prevBtnSelected) {
         setFirstSelected().catch((e) => console.error('setFirstSelected', e));
     }
@@ -73,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetElement = e.target;
             targetElement.classList.add('selected');
             prevBtnSelected = targetElement;
-            const playbackRate = targetElement.innerHTML.replaceAll('x', '');
+            const playbackRate = targetElement.innerText.replaceAll('x', '');
             try {
                 await changeSpeed(parseFloat(playbackRate));
                 await chrome.action.setBadgeText({text: playbackRate});

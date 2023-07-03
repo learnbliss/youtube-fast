@@ -51,6 +51,12 @@ chrome.runtime.onMessage.addListener(async (message) => {
         if (message.badgeText) {
             await chrome.action.setBadgeText({text: message.badgeText});
         }
+        if (message.action) {
+            await chrome.action.setBadgeText({text: message.action});
+            chrome.tabs.query({active: true, currentWindow: true}, async (tabs) => {
+                await chrome.tabs.sendMessage(tabs[0].id, {action: message.action});
+            });
+        }
     } catch (e) {
         console.error('runtime.onMessage setBadgeText', e)
     }

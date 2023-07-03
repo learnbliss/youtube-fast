@@ -41,6 +41,16 @@ const setSelect = (speedMenuItems) => {
     });
 }
 
+const handleMessage = async (playbackRate) => {
+    try {
+        await chrome.runtime.sendMessage({action: playbackRate});
+    } catch (e) {
+        console.error('handleMessage', e);
+    }
+}
+
+
+
 //добавление пунктов меню с дополнительными значениями скорости
 const addMenuItems = () => {
     const ytpMenuitemLabelCollect = document.querySelectorAll('.ytp-menuitem-label').length
@@ -78,6 +88,7 @@ const addMenuItems = () => {
             getSetPlaybackRate(playbackRate);
 
             await savePlayBackRateInLocalStorage(playbackRate);
+            await handleMessage(playbackRate);
 
             //если кликаем на одно из оригинальных значений скорости, то устанавливаем эту скорость в меню настроек
             if (parseFloat(playbackRate) <= MAX_SPEED_DEFAULT) {
