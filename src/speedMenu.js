@@ -16,6 +16,7 @@ link.setAttribute('rel', 'stylesheet');
 link.setAttribute('href', cssUrl);
 
 const root = document.createElement('div');
+root.addEventListener('click', (e) => e.stopPropagation())
 root.classList.add('menu__root');
 
 root.appendChild(style);
@@ -46,7 +47,6 @@ async function savePlayBackRateToStorage(playbackRate) {
 
 async function handleChangeSpeed(event) {
     const speed = event.target.value;
-    console.log(`Selected speed: ${speed}`);
     document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
     try {
         await savePlayBackRateToStorage(speed)
@@ -59,7 +59,6 @@ async function handleChangeSpeed(event) {
     try {
         const {playbackRate} = await chrome.storage.local.get(['playbackRate']);
         if (playbackRate) {
-            console.log('playbackRate:', playbackRate)
             select.value = playbackRate
         }
     } catch (e) {
