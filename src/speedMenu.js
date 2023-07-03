@@ -45,16 +45,6 @@ async function savePlayBackRateToStorage(playbackRate) {
     }
 }
 
-const handleMessage = async (playbackRate) => {
-    try {
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, {action: playbackRate});
-        });
-    } catch (e) {
-        console.error('handleMessage', e);
-    }
-}
-
 async function handleChangeSpeed(event) {
     const speed = event.target.value;
     document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
