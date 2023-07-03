@@ -22,9 +22,12 @@ const setSpeedInSettingsMenu = () => {
 }
 
 //сохранить значение скорости в localStorage
-const savePlayBackRateInLocalStorage = (playbackRate) => {
-    chrome.storage.local.set({playbackRate: String(playbackRate)}).then(() => {
-    });
+const savePlayBackRateInLocalStorage = async (playbackRate) => {
+    try {
+        await chrome.storage.local.set({playbackRate: String(playbackRate)})
+    } catch (e) {
+        console.error('savePlayBackRateInLocalStorage:', e)
+    }
 }
 
 const setSelect = (speedMenuItems) => {
@@ -63,15 +66,15 @@ const addMenuItems = () => {
     setSelect(updatedSpeedMenuItems);
 
     //на каждый пункт меню выбора скорости вешаем слушатель
-    updatedSpeedMenuItems.forEach((item, _, self) => {
-        item.addEventListener('click', (e) => {
+    updatedSpeedMenuItems.forEach( (item, _, self) => {
+        item.addEventListener('click', async (e) => {
             //устанавливаем указатель выбранной скорости (галочку)
             const playbackRate = item.textContent;
-            self.forEach(node => node.removeAttribute('aria-checked'));
+            self.forEach((node) => node.removeAttribute('aria-checked'));
             e.target.parentNode.setAttribute('aria-checked', 'true');
             getSetPlaybackRate(playbackRate);
 
-            savePlayBackRateInLocalStorage(playbackRate);
+            await savePlayBackRateInLocalStorage(playbackRate);
 
             //если кликаем на одно из оригинальных значений скорости, то устанавливаем эту скорость в меню настроек
             if (parseFloat(playbackRate) <= MAX_SPEED_DEFAULT) {

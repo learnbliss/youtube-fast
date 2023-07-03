@@ -3,6 +3,8 @@ const setPlaybackRate = (speed) => {
     document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
 }
 
+const getPlaybackRate = async () => await chrome.storage.local.get(['playbackRate']);
+
 //получаем текущую вкладку
 const getCurrentTab = async () => {
     let queryOptions = {active: true, currentWindow: true};
@@ -33,8 +35,10 @@ const changeSpeed = async (speed) => {
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
     if (changeInfo) {
         try {
-            const {playbackRate} = await chrome.storage.local.get(['playbackRate']);
-            playbackRate && await changeSpeed(playbackRate);
+            const {playbackRate} = await getPlaybackRate()
+            if (playbackRate) {
+                await changeSpeed(playbackRate);
+            }
         } catch (e) {
             console.error('chrome.tabs.onUpdated handler:', e)
         }
