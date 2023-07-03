@@ -9,8 +9,8 @@ let isMenuItemsAdded = false;
 
 //установить скорость воспроизведения видео, либо вернуть значение скорости
 const getSetPlaybackRate = (speed) => speed
-    ? String(document.getElementsByClassName('video-stream html5-main-video')[0].playbackRate = isNaN(speed) ? 1 : speed)
-    : document.getElementsByClassName('video-stream html5-main-video')[0].playbackRate;
+    ? String(document.querySelector('.video-stream.html5-main-video').playbackRate = isNaN(speed) ? 1 : speed)
+    : document.querySelector('.video-stream.html5-main-video').playbackRate;
 
 //установить значение скорости в основном меню настроек
 const setSpeedInSettingsMenu = () => {
@@ -86,18 +86,4 @@ const handleClick = () => {
 }
 
 //слушатель на кнопку входа в меню настроек
-ytpSettingsButton.addEventListener('click', handleClick)
-
-//слушаем сообщения от background, если оно придет, устанавливаем значение скорости из localStorage
-chrome.runtime.onMessage.addListener((request) => {
-    if (request.action === 'set-playback-rate') {
-        chrome.storage.local.get(['playbackRate']).then((result) => {
-            getSetPlaybackRate(result.playbackRate)
-        });
-    }
-});
-
-//посылаем сообщение в background о готовности загрузки content
-chrome.runtime.sendMessage('i-prepare', (response) => {
-  console.log('received user data', response);
-});
+ytpSettingsButton?.addEventListener('click', handleClick)

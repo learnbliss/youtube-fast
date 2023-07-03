@@ -1,20 +1,38 @@
-chrome.runtime.onMessage.addListener((message) => {
-    if (message === 'i-prepare') {
+// устанавливаем нужную скорость для видео
+const setPlaybackRate = (speed) => {
+    document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
+}
+
+//получаем текущую вкладку
+const getCurrentTab = async () => {
+    let queryOptions = {active: true, currentWindow: true};
+    try {
+        let [tab] = await chrome.tabs.query(queryOptions);
+        return tab;
+    } catch (e) {
+        console.error('getCurrentTab', e)
+    }
+}
+
+//меняем скорость
+const changeSpeed = (speed) => {
+    getCurrentTab().then((tab) => {
+        if (tab.url.includes('youtube')) {
+            chrome.scripting.executeScript({
+                target: {tabId: tab.id},
+                func: setPlaybackRate,
+                args: [speed],
+            }).catch(e => console.error('executeScript', e))
+        }
+    }).catch(e => console.error('changeSpeed', e))
+}
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (changeInfo) {
         chrome.storage.local.get(['playbackRate']).then((result) => {
             if (result.playbackRate) {
-                getCurrentTab().then(tab => {
-                    chrome.tabs.sendMessage(tab.id, {action: 'set-playback-rate'}).then((response) => {
-                        console.log(response)
-                    })
-                })
+                changeSpeed(result.playbackRate);
             }
-        });
-
+        })
     }
 });
-
-async function getCurrentTab() {
-    let queryOptions = {active: true, lastFocusedWindow: true};
-    let [tab] = await chrome.tabs.query(queryOptions);
-    return tab;
-}

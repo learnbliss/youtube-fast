@@ -12,8 +12,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://*.youtube.com/*",
-        "https://youtube.com/*"
+        "https://*.youtube.com/watch?*",
+        "https://youtube.com/watch?*"
       ],
       "run_at": "document_idle",
       "all_frames": false,
@@ -23,8 +23,8 @@
     }
   ],
   "host_permissions": [
-    "https://www.youtube.com/*",
-    "https://youtube.com/*"
+    "https://www.youtube.com/watch?*",
+    "https://youtube.com//watch?*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -32,6 +32,7 @@
   "permissions": [
     "activeTab",
     "storage",
-    "tabs"
+    "tabs",
+    "scripting"
   ]
 }
