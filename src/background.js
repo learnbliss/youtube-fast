@@ -15,24 +15,28 @@ const getCurrentTab = async () => {
 }
 
 //меняем скорость
-const changeSpeed = (speed) => {
-    getCurrentTab().then((tab) => {
+const changeSpeed = async (speed) => {
+    try {
+        const tab = await getCurrentTab();
         if (tab.url.includes('youtube')) {
-            chrome.scripting.executeScript({
+            await chrome.scripting.executeScript({
                 target: {tabId: tab.id},
                 func: setPlaybackRate,
                 args: [speed],
-            }).catch(e => console.error('executeScript', e))
+            })
         }
-    }).catch(e => console.error('changeSpeed', e))
+    } catch (e) {
+        console.error('changeSpeed:', e)
+    }
 }
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
     if (changeInfo) {
-        chrome.storage.local.get(['playbackRate']).then((result) => {
-            if (result.playbackRate) {
-                changeSpeed(result.playbackRate);
-            }
-        })
+        try {
+            const {playbackRate} = await chrome.storage.local.get(['playbackRate']);
+            playbackRate && await changeSpeed(playbackRate);
+        } catch (e) {
+            console.error('chrome.tabs.onUpdated handler:', e)
+        }
     }
 });
