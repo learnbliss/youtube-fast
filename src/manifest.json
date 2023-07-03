@@ -18,13 +18,14 @@
       "run_at": "document_idle",
       "all_frames": false,
       "js": [
-        "content.js"
+        "content.js",
+        "speedMenu.js"
       ]
     }
   ],
   "host_permissions": [
     "https://www.youtube.com/watch?*",
-    "https://youtube.com//watch?*"
+    "https://youtube.com/watch?*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -34,5 +35,15 @@
     "storage",
     "tabs",
     "scripting"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "menu-style.css"
+      ],
+      "matches": [
+        "https://www.youtube.com/*"
+      ]
+    }
   ]
 }
