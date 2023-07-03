@@ -24,6 +24,16 @@ async function savePlayBackRateToStorage(playbackRate) {
     }
 }
 
+const handleMessage = async (playbackRate) => {
+    try {
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, {action: playbackRate});
+        });
+    } catch (e) {
+        console.error('handleMessage', e);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const youtubeOverSpeed = document.querySelector('.grid__youtube-over-speed');
     const speedButtons = youtubeOverSpeed.querySelectorAll('button');
@@ -45,6 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    chrome.runtime.onMessage.addListener(async () => {
+        try {
+            await changeSpeed(parseFloat(playbackRate));
+        } catch (e) {
+            console.error('runtime.onMessage', e)
+        }
+    })
+
     if (!prevBtnSelected) {
         setFirstSelected().catch((e) => console.error('setFirstSelected', e));
     }
@@ -60,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await changeSpeed(parseFloat(playbackRate));
                 await chrome.action.setBadgeText({text: playbackRate});
                 await savePlayBackRateToStorage(playbackRate)
+                await handleMessage(playbackRate)
             } catch (e) {
                 console.error('changeSpeed', e)
             }

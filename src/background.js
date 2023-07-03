@@ -45,3 +45,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
         }
     }
 });
+
+chrome.runtime.onMessage.addListener(async (message) => {
+    try {
+        if (message.badgeText) {
+            await chrome.action.setBadgeText({text: message.badgeText});
+        }
+    } catch (e) {
+        console.error('runtime.onMessage setBadgeText', e)
+    }
+})
