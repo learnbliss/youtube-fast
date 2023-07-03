@@ -45,5 +45,9 @@
         "https://www.youtube.com/*"
       ]
     }
-  ]
+  ],
+  "action": {
+    "default_title": "YouTube Speed Changer",
+    "default_popup": "badge/popup.html"
+  }
 }

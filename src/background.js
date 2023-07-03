@@ -7,7 +7,7 @@ const getPlaybackRate = async () => await chrome.storage.local.get(['playbackRat
 
 //получаем текущую вкладку
 const getCurrentTab = async () => {
-    let queryOptions = {active: true, currentWindow: true};
+    const queryOptions = {active: true, currentWindow: true};
     try {
         let [tab] = await chrome.tabs.query(queryOptions);
         return tab;
@@ -20,7 +20,7 @@ const getCurrentTab = async () => {
 const changeSpeed = async (speed) => {
     try {
         const tab = await getCurrentTab();
-        if (tab.url.includes('youtube')) {
+        if (tab?.url?.includes('youtube')) {
             await chrome.scripting.executeScript({
                 target: {tabId: tab.id},
                 func: setPlaybackRate,
@@ -38,6 +38,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
             const {playbackRate} = await getPlaybackRate()
             if (playbackRate) {
                 await changeSpeed(playbackRate);
+                await chrome.action.setBadgeText({text: playbackRate});
             }
         } catch (e) {
             console.error('chrome.tabs.onUpdated handler:', e)
