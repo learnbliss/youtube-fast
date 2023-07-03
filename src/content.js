@@ -1,5 +1,8 @@
 const additionalSpeedValue = ['2.25', '2.5', '2.75', '3', '3.25', '3.5', '3.75', '4']
-const getPattern = (value) => `<div class="ytp-menuitem" tabindex="0" role="menuitemradio"><div class="ytp-menuitem-label">${value}</div></div>`
+const escapeHTMLPolicy = trustedTypes.createPolicy('forceInner', {
+    createHTML: (to_escape) => to_escape
+})
+const getPattern = (value) => escapeHTMLPolicy.createHTML(`<div class="ytp-menuitem" tabindex="0" role="menuitemradio"><div class="ytp-menuitem-label">${value}</div></div>`)
 const MAX_SPEED_DEFAULT = 2;
 const SPEED_PLAYBACK = 'Скорость воспроизведения'
 const menuItemsNotExceedValue = 15;
@@ -66,7 +69,7 @@ const addMenuItems = () => {
     setSelect(updatedSpeedMenuItems);
 
     //на каждый пункт меню выбора скорости вешаем слушатель
-    updatedSpeedMenuItems.forEach( (item, _, self) => {
+    updatedSpeedMenuItems.forEach((item, _, self) => {
         item.addEventListener('click', async (e) => {
             //устанавливаем указатель выбранной скорости (галочку)
             const playbackRate = item.textContent;
