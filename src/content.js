@@ -28,10 +28,7 @@ const savePlayBackRateInLocalStorage = (playbackRate) => {
 }
 
 const setSelect = (speedMenuItems) => {
-    console.log('speedMenuItems:', speedMenuItems)
     speedMenuItems.forEach(node => {
-        console.log('node.innerHTML:', node.innerHTML)
-        console.log('getSetPlaybackRate():', getSetPlaybackRate())
         node.innerText === String(getSetPlaybackRate())
             ? node.setAttribute('aria-checked', 'true')
             : node.removeAttribute('aria-checked')
