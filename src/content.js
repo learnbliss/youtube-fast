@@ -2,10 +2,9 @@ const additionalSpeedValue = ['2.25', '2.5', '2.75', '3', '3.25', '3.5', '3.75',
 const getPattern = (value) => `<div class="ytp-menuitem" tabindex="0" role="menuitemradio"><div class="ytp-menuitem-label">${value}</div></div>`
 const MAX_SPEED_DEFAULT = 2;
 const SPEED_PLAYBACK = 'Скорость воспроизведения'
+const menuItemsNotExceedValue = 15;
 
 const ytpSettingsButton = document.querySelector('.ytp-settings-button')
-
-let isMenuItemsAdded = false;
 
 //установить скорость воспроизведения видео, либо вернуть значение скорости
 const getSetPlaybackRate = (speed) => speed
@@ -28,9 +27,20 @@ const savePlayBackRateInLocalStorage = (playbackRate) => {
     });
 }
 
+const setSelect = (speedMenuItems) => {
+    console.log('speedMenuItems:', speedMenuItems)
+    speedMenuItems.forEach(node => {
+        console.log('node.innerHTML:', node.innerHTML)
+        console.log('getSetPlaybackRate():', getSetPlaybackRate())
+        node.innerText === String(getSetPlaybackRate())
+            ? node.setAttribute('aria-checked', 'true')
+            : node.removeAttribute('aria-checked')
+    });
+}
+
 //добавление пунктов меню с дополнительными значениями скорости
 const addMenuItems = () => {
-    if (isMenuItemsAdded) return
+    const ytpMenuitemLabelCollect = document.querySelectorAll('.ytp-menuitem-label').length
 
     let ytpPanelMenuSpeed;
     const ytpPanel = document.querySelectorAll('.ytp-panel')
@@ -40,10 +50,12 @@ const addMenuItems = () => {
         if (item.querySelector('.ytp-panel-header')?.querySelector('.ytp-panel-title')?.innerHTML
             === SPEED_PLAYBACK) {
             ytpPanelMenuSpeed = ytpPanel[i].querySelector('.ytp-panel-menu')
-            isMenuItemsAdded = true
         }
     })
 
+    if (ytpMenuitemLabelCollect > menuItemsNotExceedValue) {
+        return
+    }
     //добавляем пункты меню
     additionalSpeedValue.forEach(item => {
         const newMenuItem = document.createRange().createContextualFragment(getPattern(item))
@@ -51,13 +63,14 @@ const addMenuItems = () => {
     })
 
     const updatedSpeedMenuItems = ytpPanelMenuSpeed.querySelectorAll('.ytp-menuitem');
+    setSelect(updatedSpeedMenuItems);
 
     //на каждый пункт меню выбора скорости вешаем слушатель
-    updatedSpeedMenuItems.forEach(item => {
+    updatedSpeedMenuItems.forEach((item, _, self) => {
         item.addEventListener('click', (e) => {
             //устанавливаем указатель выбранной скорости (галочку)
             const playbackRate = item.textContent;
-            updatedSpeedMenuItems.forEach(node => node.removeAttribute('aria-checked'));
+            self.forEach(node => node.removeAttribute('aria-checked'));
             e.target.parentNode.setAttribute('aria-checked', 'true');
             getSetPlaybackRate(playbackRate);
 
