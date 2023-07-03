@@ -3,9 +3,10 @@ const menuWrapper = `.menu__root {
     display: grid;
     justify-content: end;
     width: 100%;
-    margin: 0 5px
+    margin: 0 5px;
+    align-items: center;
 }`;
-const menu = document.querySelector('.ytp-chapter-title.ytp-button');
+const menu = document.querySelector('.ytp-left-controls');
 
 const style = document.createElement('style');
 style.textContent = menuWrapper;
