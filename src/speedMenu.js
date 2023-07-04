@@ -42,7 +42,9 @@ shadowRoot.prepend(select)
 menu?.insertBefore(root, menuBtn)
 
 const setSpeedInDOM = (speed) => {
-    document.querySelectorAll('.video-stream.html5-main-video').forEach(item => item.playbackRate = speed);
+    document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
+    const short = document.querySelector('.video-stream.html5-main-video[loop]')
+    if (short) short.playbackRate = speed;
 }
 
 

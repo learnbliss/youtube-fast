@@ -10,9 +10,16 @@ const menuItemsNotExceedValue = 15;
 const ytpSettingsButton = document.querySelector('.ytp-settings-button')
 
 //установить скорость воспроизведения видео, либо вернуть значение скорости
-const getSetPlaybackRate = (speed) => speed
-    ? document.querySelectorAll('.video-stream.html5-main-video').forEach(item => item.playbackRate = isNaN(speed) ? 1 : speed)
-    : String(document.querySelector('.video-stream.html5-main-video').playbackRate);
+const getSetPlaybackRate = (speed) => {
+    if (speed) {
+        const notIsNaNSpeed = isNaN(speed) ? 1 : speed
+        document.querySelector('.video-stream.html5-main-video').playbackRate = notIsNaNSpeed;
+        const short = document.querySelector('.video-stream.html5-main-video[loop]')
+        if (short) short.playbackRate = notIsNaNSpeed;
+    } else {
+        return document.querySelector('.video-stream.html5-main-video').playbackRate;
+    }
+}
 
 //установить значение скорости в основном меню настроек
 const setSpeedInSettingsMenu = () => {
