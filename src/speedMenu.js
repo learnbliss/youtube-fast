@@ -2,11 +2,13 @@ const speedValues = ['1', '1.25', '1.5', '1.75', '2', '2.25', '2.5', '2.75', '3'
 const menuWrapper = `.menu__root {
     display: grid;
     justify-content: end;
-    width: 100%;
-    margin: 0 5px;
+    margin: 0 15px;
     align-items: center;
+    float: left;
+    height: 100%;
 }`;
-const menu = document.querySelector('.ytp-left-controls');
+const menu = document.querySelector('.ytp-right-controls');
+const menuBtn = menu.querySelector('.ytp-button');
 
 const style = document.createElement('style');
 style.textContent = menuWrapper;
@@ -32,11 +34,11 @@ speedValues.forEach((value) => {
     const option = document.createElement('option');
     option.value = value;
     option.textContent = `${value}x`;
-    select.appendChild(option);
+    select.prepend(option);
 });
 
 shadowRoot.prepend(select)
-menu.appendChild(root)
+menu.insertBefore(root, menuBtn)
 
 async function savePlayBackRateToStorage(playbackRate) {
     try {

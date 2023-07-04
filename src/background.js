@@ -20,7 +20,7 @@ const getCurrentTab = async () => {
 const changeSpeed = async (speed) => {
     try {
         const tab = await getCurrentTab();
-        if (tab?.url?.includes('youtube')) {
+        if (tab?.url?.includes('youtube/watch')) {
             await chrome.scripting.executeScript({
                 target: {tabId: tab.id},
                 func: setPlaybackRate,
