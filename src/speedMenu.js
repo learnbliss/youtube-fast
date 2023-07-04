@@ -1,5 +1,5 @@
 const speedValues = ['1', '1.25', '1.5', '1.75', '2', '2.25', '2.5', '2.75', '3', '3.25', '3.5', '3.75', '4']
-const menuWrapper = `.menu__root {
+const menuWatchStyle = `.menu__root {
     display: grid;
     justify-content: end;
     margin: 0 15px;
@@ -7,11 +7,12 @@ const menuWrapper = `.menu__root {
     float: left;
     height: 100%;
 }`;
+
 const menu = document.querySelector('.ytp-right-controls');
-const menuBtn = menu.querySelector('.ytp-button');
+const menuBtn = menu?.querySelector('.ytp-button');
 
 const style = document.createElement('style');
-style.textContent = menuWrapper;
+style.textContent = menuWatchStyle;
 
 const cssUrl = chrome.runtime.getURL('menu-style.css')
 const link = document.createElement('link');
@@ -38,7 +39,12 @@ speedValues.forEach((value) => {
 });
 
 shadowRoot.prepend(select)
-menu.insertBefore(root, menuBtn)
+menu?.insertBefore(root, menuBtn)
+
+const setSpeedInDOM = (speed) => {
+    document.querySelectorAll('.video-stream.html5-main-video').forEach(item => item.playbackRate = speed);
+}
+
 
 async function savePlayBackRateToStorage(playbackRate) {
     try {
@@ -50,7 +56,7 @@ async function savePlayBackRateToStorage(playbackRate) {
 
 async function handleChangeSpeed(event) {
     const speed = event.target.value;
-    document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
+    setSpeedInDOM(speed)
     try {
         await savePlayBackRateToStorage(speed)
         await chrome.runtime.sendMessage({badgeText: speed});

@@ -1,5 +1,5 @@
 function setPlaybackRate(speed) {
-    document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
+    document.querySelectorAll('.video-stream.html5-main-video').forEach(item => item.playbackRate = speed);
 }
 
 async function changeSpeed(speed) {

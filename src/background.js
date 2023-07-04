@@ -1,6 +1,6 @@
 // устанавливаем нужную скорость для видео
 const setPlaybackRate = (speed) => {
-    document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
+    document.querySelectorAll('.video-stream.html5-main-video').forEach(item => item.playbackRate = speed);
 }
 
 const getPlaybackRate = async () => await chrome.storage.local.get(['playbackRate']);
@@ -16,11 +16,12 @@ const getCurrentTab = async () => {
     }
 }
 
+const regexpValidateUrl = /youtube\.com\/(?:watch|shorts)/g
 //меняем скорость
 const changeSpeed = async (speed) => {
     try {
         const tab = await getCurrentTab();
-        if (tab?.url?.includes('youtube/watch')) {
+        if (regexpValidateUrl.test(tab?.url)) {
             await chrome.scripting.executeScript({
                 target: {tabId: tab.id},
                 func: setPlaybackRate,

@@ -11,8 +11,8 @@ const ytpSettingsButton = document.querySelector('.ytp-settings-button')
 
 //установить скорость воспроизведения видео, либо вернуть значение скорости
 const getSetPlaybackRate = (speed) => speed
-    ? String(document.querySelector('.video-stream.html5-main-video').playbackRate = isNaN(speed) ? 1 : speed)
-    : document.querySelector('.video-stream.html5-main-video').playbackRate;
+    ? document.querySelectorAll('.video-stream.html5-main-video').forEach(item => item.playbackRate = isNaN(speed) ? 1 : speed)
+    : String(document.querySelector('.video-stream.html5-main-video').playbackRate);
 
 //установить значение скорости в основном меню настроек
 const setSpeedInSettingsMenu = () => {
@@ -48,7 +48,6 @@ const handleMessage = async (playbackRate) => {
         console.error('handleMessage', e);
     }
 }
-
 
 
 //добавление пунктов меню с дополнительными значениями скорости
