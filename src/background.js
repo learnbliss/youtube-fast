@@ -9,7 +9,7 @@ const getPlaybackRate = async () => await chrome.storage.local.get(['playbackRat
 
 //получаем текущую вкладку
 const getCurrentTab = async () => {
-    const queryOptions = {active: true, currentWindow: true};
+    const queryOptions = {active: true, lastFocusedWindow: true};
     try {
         let [tab] = await chrome.tabs.query(queryOptions);
         return tab;
@@ -18,12 +18,23 @@ const getCurrentTab = async () => {
     }
 }
 
-const regexpValidateUrl = /youtube\.com\/(?:watch|shorts)/g
+
+const isYouTubeUrl = (url) => {
+    try {
+        const {hostname} = new URL(url);
+        return hostname.endsWith('youtube.com') || hostname.endsWith('youtu.be');
+    } catch (e) {
+        console.error('isYouTubeUrl:', e);
+        return false;
+    }
+};
+
 //меняем скорость
 const changeSpeed = async (speed) => {
     try {
         const tab = await getCurrentTab();
-        if (regexpValidateUrl.test(tab?.url)) {
+        console.log('tab changeSpeed:', tab)
+        if (isYouTubeUrl(tab?.url)) {
             await chrome.scripting.executeScript({
                 target: {tabId: tab.id},
                 func: setPlaybackRate,
@@ -35,32 +46,15 @@ const changeSpeed = async (speed) => {
     }
 }
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
-    if (changeInfo) {
-        try {
-            const {playbackRate} = await getPlaybackRate()
-            if (playbackRate) {
-                await changeSpeed(playbackRate);
-                await chrome.action.setBadgeText({text: playbackRate});
-            }
-        } catch (e) {
-            console.error('chrome.tabs.onUpdated handler:', e)
-        }
-    }
-});
 
-chrome.runtime.onMessage.addListener(async (message) => {
+chrome.tabs.onUpdated.addListener(async () => {
     try {
-        if (message.badgeText) {
-            await chrome.action.setBadgeText({text: message.badgeText});
-        }
-        if (message.action) {
-            await chrome.action.setBadgeText({text: message.action});
-            chrome.tabs.query({active: true, currentWindow: true}, async (tabs) => {
-                await chrome.tabs.sendMessage(tabs[0].id, {action: message.action});
-            });
+        const {playbackRate} = await getPlaybackRate()
+        if (playbackRate) {
+            await changeSpeed(playbackRate);
+            await chrome.action.setBadgeText({text: playbackRate});
         }
     } catch (e) {
-        console.error('runtime.onMessage setBadgeText', e)
+        console.error('chrome.tabs.onUpdated handler:', e)
     }
-})
+});

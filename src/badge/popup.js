@@ -1,38 +1,52 @@
-function setPlaybackRate(speed) {
-    document.querySelector('.video-stream.html5-main-video').playbackRate = speed;
+const setPlaybackRate = (playbackRate) => {
+    document.querySelector('.video-stream.html5-main-video').playbackRate = playbackRate;
     const short = document.querySelector('.video-stream.html5-main-video[loop]')
-    if (short) short.playbackRate = speed;
+    if (short) short.playbackRate = playbackRate;
 }
 
-async function changeSpeed(speed) {
+const changeSpeed = async (playbackRate) => {
     const queryOptions = {active: true, currentWindow: true};
     try {
         let [tab] = await chrome.tabs.query(queryOptions);
         await chrome.scripting.executeScript({
             target: {tabId: tab.id},
             func: setPlaybackRate,
-            args: [speed],
-        })
+            args: [playbackRate],
+        });
+        await chrome.storage.local.set({playbackRate: String(playbackRate)});
+        await chrome.action.setBadgeText({text: String(playbackRate)});
     } catch (e) {
         console.error('changeSpeed', e)
     }
 }
 
-async function savePlayBackRateToStorage(playbackRate) {
+let prevBtnSelected;
+
+const setFirstSelected = async (domElement) => {
     try {
-        await chrome.storage.local.set({playbackRate: String(playbackRate)})
+        const {playbackRate} = await chrome.storage.local.get(['playbackRate']);
+        if (playbackRate) {
+            const selectedId = `#speed${playbackRate.replaceAll('.', '')}`;
+            const selectedElement = domElement.querySelector(selectedId)
+            selectedElement.classList.add('selected');
+            prevBtnSelected = selectedElement;
+            await chrome.action.setBadgeText({text: playbackRate});
+        }
     } catch (e) {
-        console.error('savePlayBackRateToStorage:', e)
+        console.error('storage.local get playbackRate', e)
     }
 }
 
-const handleMessage = async (playbackRate) => {
+const handleClick = async (e) => {
+    const targetElement = e.target;
+    prevBtnSelected?.classList.remove('selected')
+    targetElement.classList.add('selected');
+    prevBtnSelected = targetElement;
+    const playbackRate = targetElement.innerText.replaceAll('x', '');
     try {
-        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-            chrome.tabs.sendMessage(tabs[0].id, {action: playbackRate});
-        });
+        await changeSpeed(parseFloat(playbackRate));
     } catch (e) {
-        console.error('handleMessage', e);
+        console.error('changeSpeed', e)
     }
 }
 
@@ -40,42 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const youtubeOverSpeed = document.querySelector('.grid__youtube-over-speed');
     const speedButtons = youtubeOverSpeed.querySelectorAll('button');
 
-    let prevBtnSelected;
-
-    const setFirstSelected = async () => {
-        try {
-            const {playbackRate} = await chrome.storage.local.get(['playbackRate']);
-            if (playbackRate) {
-                const selectedId = `#speed${playbackRate.replaceAll('.', '')}`;
-                const selectedElement = youtubeOverSpeed.querySelector(selectedId)
-                selectedElement.classList.add('selected');
-                prevBtnSelected = selectedElement;
-                await chrome.action.setBadgeText({text: playbackRate});
-            }
-        } catch (e) {
-            console.error('storage.local get playbackRate', e)
-        }
-    }
-
     if (!prevBtnSelected) {
-        setFirstSelected().catch((e) => console.error('setFirstSelected', e));
+        setFirstSelected(youtubeOverSpeed).catch((e) => console.error('setFirstSelected', e));
     }
 
     speedButtons.forEach((btn) => {
-        btn.addEventListener('click', async (e) => {
-            prevBtnSelected?.classList.remove('selected')
-            const targetElement = e.target;
-            targetElement.classList.add('selected');
-            prevBtnSelected = targetElement;
-            const playbackRate = targetElement.innerText.replaceAll('x', '');
-            try {
-                await changeSpeed(parseFloat(playbackRate));
-                await chrome.action.setBadgeText({text: playbackRate});
-                await savePlayBackRateToStorage(playbackRate)
-                await handleMessage(playbackRate)
-            } catch (e) {
-                console.error('changeSpeed', e)
-            }
-        })
+        btn.addEventListener('click', handleClick)
     })
 })
