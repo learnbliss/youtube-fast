@@ -34,8 +34,7 @@ const isYouTubeUrl = (url) => {
 const changeSpeed = async (speed) => {
     try {
         const tab = await getCurrentTab();
-        console.log('tab changeSpeed:', tab)
-        if (isYouTubeUrl(tab?.url)) {
+        if (tab && isYouTubeUrl(tab.url)) {
             await chrome.scripting.executeScript({
                 target: {tabId: tab.id},
                 func: setPlaybackRate,
