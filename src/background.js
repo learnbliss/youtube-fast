@@ -20,13 +20,10 @@ const getCurrentTab = async () => {
 
 
 const isYouTubeUrl = (url) => {
-    try {
+    if (url) {
         const {hostname, pathname} = new URL(url);
         return (hostname === 'youtube.com' || hostname === 'www.youtube.com' || hostname === 'youtu.be' || hostname === 'm.youtube.com') &&
             /^\/(watch|shorts)/.test(pathname)
-    } catch (e) {
-        console.error('isYouTubeUrl:', e);
-        return false;
     }
 };
 
